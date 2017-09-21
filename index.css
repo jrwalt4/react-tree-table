@@ -1,0 +1,77 @@
+/* .Table */
+
+.Table {
+  display: table;
+  border-collapse: collapse;
+}
+
+/* .Header, .Footer */
+
+.Header, .Footer {
+  background: darkgray;
+}
+
+.Header .Col-1 {
+  width: 7em;
+}
+
+/* .Body */
+
+/* .Branch */
+
+.Branch {
+  display: block;
+}
+
+.Hidden {
+  display: none;
+}
+
+/* .Leaf */
+
+.Leaf {
+  background: white;
+}
+
+.Leaf:hover {
+  outline: 1px solid blue;
+}
+/*
+.Leaf:nth-of-type(even) {
+  background: lightgray;
+}*/
+
+.Branch:nth-of-type(even) > .Leaf {
+  background: lightgray;
+}
+
+.Branch:nth-of-type(odd) > .Leaf {
+  background: white;
+}
+
+.Triangle {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
+/* .Col */
+
+.Col {
+  display: inline-block;
+  width: 5em;
+  outline: 1px solid black;
+  text-align: center;
+}
+
+.Branch .Col-1 {
+  text-align: left;
+  width: 7em;
+}
+
+/* .Cell */
+
+.Cell {
+  display: inline-block;
+  padding: 0 0.5em;
+}
