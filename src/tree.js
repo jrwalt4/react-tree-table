@@ -70,7 +70,8 @@ define(['react', 'src/util-array', 'src/util-tree'], function(React, util, treeU
       this.getKeys().map(function(propertyKey, i) {
         return create(
           "td", 
-          {key: propertyKey}, 
+          {key: propertyKey,
+          style: i === 0 ? {paddingLeft: branch.getDepth()+"em"} : undefined}, 
           i === 0 ? _this.getDisclosureTriangle(branch) : null,
           _this.props.renderProperty(branch.getData(), propertyKey)
         );
@@ -85,7 +86,12 @@ define(['react', 'src/util-array', 'src/util-tree'], function(React, util, treeU
     var branchKey = this.props.getKey(branch.getData());
     var cssClass = this.state.hideChildren[branchKey] ? "fa fa-caret-right" : "fa fa-caret-down";
     var _this = this;
-    return create("span", {className: cssClass, onClick: function(){_this.toggleBranch(branchKey)}});
+    return create("span", 
+      {
+        className: cssClass,
+        onClick: function(){_this.toggleBranch(branchKey)}
+      }
+    );
   }
   
   Tree.prototype.render = function() {

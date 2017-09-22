@@ -77,6 +77,16 @@ define([], function() {
     return children;
   };
   
+  DataBranch.prototype.getDepth = function() {
+    var depth = 0;
+    var parent = this.getParent();
+    while (parent) {
+      depth++;
+      parent = parent.getParent();
+    }
+    return depth;
+  }
+  
   return {
     DataTree: DataTree,
     DataBranch: DataBranch
