@@ -6,7 +6,7 @@ requirejs.config({
   }
 })
 requirejs(['react','react-dom','src/tree'], function(React, ReactDOM, Tree) {
-  var root = {
+  var family = {
     name: 'Tom', age: 62,
     children: [
       {
@@ -26,10 +26,12 @@ requirejs(['react','react-dom','src/tree'], function(React, ReactDOM, Tree) {
       }
     ]
   };
-  var element = React.createElement(Tree, {
-    root: root,
-    keys: ['name', 'age']
+  window.element = React.createElement(Tree, {
+    root: family,
+    keys: ['name', 'age'],
+    getChildren: function(person) {return person.children},
+    getKey: function(person) {return person.name}
   });
 
-  ReactDOM.render(element, document.getElementById('root'));
+  window.domElement = ReactDOM.render(element, document.getElementById('root'));
 });

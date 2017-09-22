@@ -1,50 +1,125 @@
-define(['react','src/branch'], function(React, Branch) {
+define(['react', 'src/util-array', 'src/util-tree'], function(React, util, treeUtil) {
   
   let create = React.createElement;
 
-  function defaultGetChildren(obj) {
-    return obj.children;
+  let _super = React.Component;
+  
+  function Tree(props) {
+    _super.call(this, props);
+    this.state = {
+      hideChildren:{}
+    };
+    let _this = this;
+    this.toggleBranch = function(branchKey) {
+      _this.setState(function(prevState){
+        let prevHideChildren = prevState.hideChildren;
+        let revision = {};
+        revision[branchKey] = !prevHideChildren[branchKey];
+        return {
+          hideChildren: Object.assign({}, prevHideChildren, revision)
+        };
+      });
+    }
   }
   
-  return function Tree(props) {
-    var getChildren = props.getChildren || defaultGetChildren;
-    var keys = props.keys || Object.keys(props.root);
-    return create("div", 
+  Tree.defaultProps = {
+    renderProperty: function(branch, key) {
+      return create("span", null, branch[key]);
+    }
+  };
+  
+  Tree.prototype = Object.create(_super.prototype);
+  
+  Tree.prototype.getKeys = function() {
+    return this.props.keys || Object.keys(this.props.root);
+  };
+  
+  Tree.prototype.getDataTree = function() {
+    return treeUtil.DataTree.from(this.props.root, this.props.getChildren);
+  };
+  
+  Tree.prototype.getBranches = function() {
+    let branches = this.reduceTree();
+    return branches.map(this.renderBranch, this);
+  };
+  
+  Tree.prototype.reduceTree = function() {
+    let branches = [];
+    let next = this.getDataTree();
+    while(next) {
+      branches.push(next);
+      let doRenderChildren = !this.state.hideChildren[this.props.getKey(next.getData())];
+      var parent = null;
+      next = (doRenderChildren && next.getFirstChild()) ||
+        next.getNextSibling() ||
+        ((parent = next.getParent()) && parent.getNextSibling());
+    }
+    return branches;
+  };
+  
+  Tree.prototype.renderBranch = function(branch) {
+    let _this = this;
+    let branchKey = this.props.getKey(branch.getData());
+    return create("tr",
       {
-        className: "Table"
+        key: branchKey,
+        onDoubleClick: function(ev) {
+          _this.toggleBranch(branchKey)
+        }
       },
-      create("div",
-        {
-          className: "Header"
-        },
-        keys.map(
-          function(key, i) {
-            return create("span", 
-              {
-                key:key,
-                className: "Col Col-"+(i+1)
-              }, 
-              key);
-            }
-          )
-        ),
-      create("div",
-        {
-          className: "Body"
-        }, create(Branch, {
-            branch: props.root,
-            keys: keys,
-            key: 'root',
-            branchKey: 'root',
-            renderProperty: props.renderProperty,
-            getChildren: getChildren
-          })
-        ),
-      create("div",
-        {
-          className: "Footer"
-        }, create("span", null, "Footer"))
+      this.getKeys().map(function(propertyKey, i) {
+        return create(
+          "td", 
+          {key: propertyKey}, 
+          i === 0 ? _this.getDisclosureTriangle(branch) : null,
+          _this.props.renderProperty(branch.getData(), propertyKey)
+        );
+      })
     );
   };
-
+  
+  Tree.prototype.getDisclosureTriangle = function(branch) {
+    if(!branch.getFirstChild()) {
+      return null;
+    }
+    var branchKey = this.props.getKey(branch.getData());
+    var cssClass = this.state.hideChildren[branchKey] ? "fa fa-caret-right" : "fa fa-caret-down";
+    var _this = this;
+    return create("span", {className: cssClass, onClick: function(){_this.toggleBranch(branchKey)}});
+  }
+  
+  Tree.prototype.render = function() {
+    let props = this.props;
+    var keys = this.getKeys();
+    return create("table", 
+      {
+      },
+      create("thead",
+        {
+        },
+        create("tr",null,
+          keys.map(
+            function(key, i) {
+              return create("th", 
+                {
+                  key:key
+                }, 
+                key
+                );
+              }
+            )
+        )
+      ),
+      create("tfoot", 
+        null,
+        create("tr", null, 
+          create("td", {colSpan:keys.length}, "Footer")
+        )
+      ),
+      create("tbody",null, 
+        this.getBranches()
+      )
+    );
+  };
+  return Tree;
 });
