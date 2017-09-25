@@ -19,7 +19,6 @@ define([], function() {
     this._data = data;
     this._parent = null;
     this._firstChild = null;
-    this._previousSibling = null;
     this._nextSibling = null;
   }
   
@@ -46,23 +45,18 @@ define([], function() {
   DataBranch.prototype.addChild = function(branch) {
     if(!this._firstChild) {
       this._firstChild = branch;
-      branch._parent = this;
     } else {
-      this.getLastChild().setNextSibling(branch);
+      this.getLastChild()._nextSibling = branch;
     }
+    branch._parent = this;
   };
   
   DataBranch.prototype.getParent = function() {
-    return this._parent || (this._previousSibling && this._previousSibling.getParent()) || null;
+    return this._parent;
   };
   
   DataBranch.prototype.getNextSibling = function() {
     return this._nextSibling;
-  };
-  
-  DataBranch.prototype.setNextSibling = function(branch) {
-    this._nextSibling = branch;
-    branch._previousSibling = this;
   };
   
   DataBranch.prototype.getChildren = function() {
